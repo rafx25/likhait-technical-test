@@ -47,6 +47,37 @@ export async function fetchCategories(): Promise<
 }
 
 /**
+ * Create a new category
+ */
+export async function createCategory(
+  name: string,
+): Promise<{ id: number; name: string }> {
+  const response = await fetch(`${API_BASE_URL}/categories`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ category: { name } }),
+  });
+
+  if (!response.ok) {
+    // Surface the backend validation message (e.g. duplicate/blank name).
+    let message = "Failed to create category";
+    try {
+      const data = await response.json();
+      if (data?.errors?.length) {
+        message = data.errors.join(", ");
+      }
+    } catch {
+      // response had no JSON body; keep the default message
+    }
+    throw new Error(message);
+  }
+
+  return response.json();
+}
+
+/**
  * Create a new expense
  */
 export async function createExpense(data: ExpenseFormData): Promise<Expense> {
