@@ -4,7 +4,6 @@
 
 import React from "react";
 import { ExpenseFormData } from "../types";
-import { EXPENSE_CATEGORIES } from "../constants/categories";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
 import { formatDate } from "../utils/expenseUtils";
@@ -14,12 +13,8 @@ interface ExpenseFormProps {
   onSubmit: (data: ExpenseFormData) => Promise<void>;
   onCancel?: () => void;
   submitLabel?: string;
-  /**
-   * Category names to show in the dropdown. When provided (e.g. loaded from the
-   * backend) these are used so newly created categories appear. Falls back to
-   * the predefined list when omitted.
-   */
-  categories?: string[];
+  /** Category names to show in the dropdown, loaded from the backend. */
+  categories: string[];
 }
 
 export function ExpenseForm({
@@ -47,12 +42,7 @@ export function ExpenseForm({
     marginTop: "0.5rem",
   };
 
-  const categoryList =
-    categories && categories.length > 0
-      ? categories
-      : [...EXPENSE_CATEGORIES];
-
-  const categoryOptions = categoryList.map((category) => ({
+  const categoryOptions = categories.map((category) => ({
     value: category,
     label: category,
   }));

@@ -14,7 +14,7 @@ import { deleteExpense, updateExpense } from "../services/api";
 interface CalendarExpenseTableProps {
   expenses: Expense[];
   onExpenseUpdated: () => void;
-  categories?: string[];
+  categories: string[];
 }
 
 const ITEMS_PER_PAGE = 10;
