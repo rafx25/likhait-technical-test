@@ -46,7 +46,10 @@ RSpec.describe "Api::Expenses", type: :request do
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
         expect(json["description"]).to eq("Team Lunch")
-        expect(json["amount"]).to eq("150.5")
+        # The API serializes amount as a JSON number (see ExpensesController#format_expense
+        # which calls `.to_f`), and the frontend `Expense` type declares `amount: number`.
+        # Assert against the numeric value, not a string.
+        expect(json["amount"]).to eq(150.5)
       end
     end
 
