@@ -21,7 +21,11 @@ module Backend
     # These settings can be overridden in specific environments using the files
     # in config/environments, which are processed later.
     #
-    # config.time_zone = "Central Time (US & Canada)"
+    # Run in the application's business timezone (PH) so that date-only logic
+    # like "an expense date can't be in the future" uses the same calendar day
+    # as the users' browsers. Without this the server defaults to UTC, and in the
+    # evening (GMT+8) "today" in the browser looks like "tomorrow" to the server.
+    config.time_zone = "Asia/Manila"
     # config.eager_load_paths << Rails.root.join("extras")
 
     # Only loads a smaller set of middleware suitable for API only apps.
