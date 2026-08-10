@@ -4,7 +4,7 @@
 
 import React, { useState } from "react";
 import { Expense, ExpenseFormData } from "../types";
-import { formatCurrency, formatDate } from "../utils/expenseUtils";
+import { formatCurrency, formatDate, formatDateTime } from "../utils/expenseUtils";
 import { getCategoryEmoji } from "../constants/categoryEmojis";
 import { COLORS } from "../constants/colors";
 import { Button, Modal, Pagination } from "../vibes";
@@ -128,6 +128,8 @@ export function CalendarExpenseTable({
             <th style={thStyle}>Description</th>
             <th style={thStyle}>Category</th>
             <th style={thStyle}>Amount</th>
+            <th style={thStyle}>Created</th>
+            <th style={thStyle}>Updated</th>
             <th style={{ ...thStyle, textAlign: "center" }}>Actions</th>
           </tr>
         </thead>
@@ -150,6 +152,14 @@ export function CalendarExpenseTable({
               </td>
               <td style={{ ...tdStyle, textAlign: "left", fontWeight: 600 }}>
                 {formatCurrency(expense.amount)}
+              </td>
+              <td style={tdStyle}>{formatDateTime(expense.created_at)}</td>
+              <td style={tdStyle}>
+                {/* Only show "Updated" when the expense was actually edited
+                    (created_at and updated_at differ). */}
+                {expense.updated_at !== expense.created_at
+                  ? formatDateTime(expense.updated_at)
+                  : "—"}
               </td>
               <td style={{ ...tdStyle, textAlign: "center" }}>
                 <div style={actionButtonsStyle}>
