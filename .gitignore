@@ -65,3 +65,5 @@ yarn-error.log*
 
 # RSpec
 /backend/.rspec_status
+# Personal notes (not part of submission)
+.notes/
