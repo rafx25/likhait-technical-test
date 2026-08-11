@@ -29,6 +29,19 @@ export function formatDate(date: Date): string {
 }
 
 /**
+ * Format an ISO timestamp to "YYYY-MM-DD HH:mm" in local time.
+ * Returns an empty string for missing values.
+ */
+export function formatDateTime(value?: string): string {
+  if (!value) return "";
+  const date = new Date(value);
+  if (isNaN(date.getTime())) return "";
+  const hours = String(date.getHours()).padStart(2, "0");
+  const minutes = String(date.getMinutes()).padStart(2, "0");
+  return `${formatDate(date)} ${hours}:${minutes}`;
+}
+
+/**
  * Get days in month
  */
 export function getDaysInMonth(year: number, month: number): number {

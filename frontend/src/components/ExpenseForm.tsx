@@ -4,15 +4,17 @@
 
 import React from "react";
 import { ExpenseFormData } from "../types";
-import { EXPENSE_CATEGORIES } from "../constants/categories";
 import { TextField, SelectBox, Button } from "../vibes";
 import { useExpenseForm } from "../hooks/useExpenseForm";
+import { formatDate } from "../utils/expenseUtils";
 
 interface ExpenseFormProps {
   initialData?: Partial<ExpenseFormData>;
   onSubmit: (data: ExpenseFormData) => Promise<void>;
   onCancel?: () => void;
   submitLabel?: string;
+  /** Category names to show in the dropdown, loaded from the backend. */
+  categories: string[];
 }
 
 export function ExpenseForm({
@@ -20,6 +22,7 @@ export function ExpenseForm({
   onSubmit,
   onCancel,
   submitLabel = "Add Expense",
+  categories,
 }: ExpenseFormProps) {
   const { formData, errors, isSubmitting, handleChange, handleSubmit } =
     useExpenseForm({
@@ -39,10 +42,15 @@ export function ExpenseForm({
     marginTop: "0.5rem",
   };
 
-  const categoryOptions = EXPENSE_CATEGORIES.map((category) => ({
+  const categoryOptions = categories.map((category) => ({
     value: category,
     label: category,
   }));
+
+  // Expenses can only be recorded for today or earlier, so cap the date picker
+  // at today. This blocks future dates in the native picker; the hook also
+  // validates on submit in case a value is typed/pasted in manually.
+  const today = formatDate(new Date());
 
   return (
     <form onSubmit={handleSubmit} style={formStyle}>
@@ -83,6 +91,7 @@ export function ExpenseForm({
         label="Date"
         type="date"
         value={formData.date}
+        max={today}
         onChange={(e) => handleChange("date", e.target.value)}
         error={errors.date}
         fullWidth

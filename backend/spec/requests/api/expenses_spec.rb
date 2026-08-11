@@ -16,12 +16,17 @@ RSpec.describe "Api::Expenses", type: :request do
       expect(json.length).to eq(2)
     end
 
-    it "returns expenses in descending order by created_at" do
+    it "returns expenses in descending order by expense date" do
+      # Created first, but dated further in the past -> should appear last.
+      old_expense = Expense.create!(description: "Old", amount: 10.00, category: food_category, date: 5.days.ago.to_date)
+      # Created last, but dated most recently -> should appear first.
+      recent_expense = Expense.create!(description: "Recent", amount: 20.00, category: food_category, date: Date.today)
+
       get "/api/expenses"
 
       json = JSON.parse(response.body)
-      expect(json.first["id"]).to eq(expense2.id)
-      expect(json.last["id"]).to eq(expense1.id)
+      expect(json.first["id"]).to eq(recent_expense.id)
+      expect(json.last["id"]).to eq(old_expense.id)
     end
   end
 
@@ -46,7 +51,10 @@ RSpec.describe "Api::Expenses", type: :request do
         expect(response).to have_http_status(:created)
         json = JSON.parse(response.body)
         expect(json["description"]).to eq("Team Lunch")
-        expect(json["amount"]).to eq("150.5")
+        # The API serializes amount as a JSON number (see ExpensesController#format_expense
+        # which calls `.to_f`), and the frontend `Expense` type declares `amount: number`.
+        # Assert against the numeric value, not a string.
+        expect(json["amount"]).to eq(150.5)
       end
     end
 
@@ -80,6 +88,41 @@ RSpec.describe "Api::Expenses", type: :request do
 
         expect {
           post "/api/expenses", params: invalid_params, as: :json
+        }.to change(Expense, :count).by(1)
+
+        expect(response).to have_http_status(:created)
+      end
+
+      it "rejects a future date" do
+        future_params = {
+          expense: {
+            description: "Time traveler lunch",
+            amount: 100.00,
+            category_id: food_category.id,
+            date: Date.tomorrow
+          }
+        }
+
+        expect {
+          post "/api/expenses", params: future_params, as: :json
+        }.not_to change(Expense, :count)
+
+        expect(response).to have_http_status(:unprocessable_entity)
+        expect(JSON.parse(response.body)["errors"]).to include(/future/i)
+      end
+
+      it "allows today's date" do
+        today_params = {
+          expense: {
+            description: "Lunch today",
+            amount: 100.00,
+            category_id: food_category.id,
+            date: Date.current
+          }
+        }
+
+        expect {
+          post "/api/expenses", params: today_params, as: :json
         }.to change(Expense, :count).by(1)
 
         expect(response).to have_http_status(:created)

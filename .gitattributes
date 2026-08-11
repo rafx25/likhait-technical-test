@@ -1,0 +1,7 @@
+# Normalize line endings. Shell scripts and Ruby binstubs MUST use LF so they
+# run inside the Linux (Docker) containers even when checked out on Windows.
+* text=auto eol=lf
+
+backend/bin/* text eol=lf
+*.sh text eol=lf
+*.rb text eol=lf
